@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speech to Sign - Indian Sign Language Detection</title>
+    <link rel="stylesheet" href="../style.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Additional styles specific to the speech-to-sign page */
+      .sign-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .sign-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 12px 15px 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        width: 150px;
+      }
+
+      .letter {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #555;
+      }
+
+      .sign-image {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        background-color: #eee;
+        border-radius: 5px;
+      }
+
+      .recording {
+        color: var(--secondary);
+        animation: blink 1.5s infinite;
+      }
+
+      @keyframes blink {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .history-section {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+      }
+
+      .history-item {
+        border-bottom: 1px solid #eee;
+        padding: 10px 0;
+      }
+
+      .history-item:last-child {
+        border-bottom: none;
+      }
+
+      .history-text {
+        font-weight: 500;
+      }
+
+      .history-lang {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      /* Enhanced language dropdown styling */
+      .language-select-container {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .language-select-container::after {
+        content: "\f107";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: white;
+        font-size: 18px;
+      }
+
+      #language-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 180px;
+        padding: 12px 15px;
+        font-size: 16px;
+        border: 2px solid #0a3d62;
+        border-radius: 8px;
+        background-color: #0a3d62;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      #language-select:hover {
+        background-color: #0c4d7a;
+        border-color: #0c4d7a;
+      }
+
+      #language-select:focus {
+        outline: none;
+        border-color: #0c4d7a;
+        box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.3);
+      }
+
+      #language-select option {
+        padding: 10px;
+        font-size: 16px;
+        background-color: #0a3d62;
+        color: white;
+      }
+
+      .conversion-container {
+        position: relative;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        position: relative;
+        height: 50px;
+      }
+
+      @media (max-width: 768px) {
+        .sign-card {
+          width: 120px;
+          padding: 10px 12px 12px;
+        }
+
+        .sign-image {
+          width: 100px;
+          height: 100px;
+        }
+
+        .letter {
+          font-size: 0.9rem;
+          margin-bottom: 4px;
+        }
+      }
+
+      .language-selector {
+        position: relative;
+        display: inline-block;
+      }
+
+      .language-selector .goog-te-combo {
+        appearance: none;
+        background-color: transparent;
+        border: none;
+        color: white;
+        padding: 14px 20px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 16px;
+      }
+
+      .language-selector::after {
+        content: "▼";
+        font-size: 10px;
+        color: white;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .goog-te-banner-frame {
+        display: none;
+      }
+
+      .goog-logo-link {
+        display: none !important;
+      }
+
+      .goog-te-gadget {
+        color: transparent !important;
+      }
+
+      .goog-te-gadget .goog-te-combo {
+        color: white !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="header">
+      <div class="container">
+        <nav>
+          <div class="logo"><i class="fas fa-sign-language"></i> ISLD</div>
+          <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../gesture-to-text.html">Gesture to Text</a></li>
+            <li><a href="../gesture-to-speech.html">Gesture to Speech</a></li>
+            <li>
+              <a href="aspeech-to-sign-app.html" class="active"
+                >Speech to Gesture</a
+              >
+            </li>
+            <li>
+              <a href="../voice translate/zvoice-translate.html">Translate</a>
+            </li>
+            <li><a href="../about.html">About</a></li>
+            <li class="language-selector">
+              <div id="google_translate_element"></div>
+            </li>
+          </ul>
+          <div class="hamburger">
+            <i class="fas fa-bars"></i>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Speech to Sign Page -->
+    <section id="speech-to-sign-page" class="conversion-page">
+      <div class="container">
+        <div class="conversion-container">
+          <div class="conversion-header">
+            <h1>Speech to Gesture Conversion</h1>
+            <p>Convert speech from Indian languages to sign language</p>
+          </div>
+
+          <div class="conversion-box">
+            <i class="fas fa-microphone"></i>
+            <h3>Speak Now</h3>
+            <p>
+              Click the button and speak clearly to convert your speech into
+              sign language gestures.
+            </p>
+            <div class="controls">
+              <button id="toggle-btn" class="btn">Start</button>
+              <div class="language-select-container">
+                <select id="language-select">
+                  <option value="en-IN">English (India)</option>
+                  <option value="hi-IN">Hindi</option>
+                  <option value="ta-IN">Tamil</option>
+                  <option value="te-IN">Telugu</option>
+                  <option value="kn-IN">Kannada</option>
+                  <option value="ml-IN">Malayalam</option>
+                  <option value="mr-IN">Marathi</option>
+                  <option value="gu-IN">Gujarati</option>
+                  <option value="pa-IN">Punjabi</option>
+                  <option value="bn-IN">Bengali</option>
+                </select>
+              </div>
+            </div>
+            <div id="status" class="status">Ready to listen</div>
+          </div>
+
+          <div class="conversion-result">
+            <h3>Sign Language Display</h3>
+            <div id="output-text" class="output-text"></div>
+            <div id="sign-display" class="sign-display">
+              <!-- Sign cards will be displayed here -->
+              <div class="sign-card">
+                <div class="letter">H</div>
+                <img src="h.jpg" alt="Sign for H" class="sign-image" />
+              </div>
+              <div class="sign-card">
+                <div class="letter">E</div>
+                <img src="e.jpg" alt="Sign for E" class="sign-image" />
+              </div>
+              <div class="sign-card">
+                <div class="letter">L</div>
+                <img src="l.jpg" alt="Sign for L" class="sign-image" />
+              </div>
+              <div class="sign-card">
+                <div class="letter">L</div>
+                <img src="l.jpg" alt="Sign for L" class="sign-image" />
+              </div>
+              <div class="sign-card">
+                <div class="letter">O</div>
+                <img src="o.jpg" alt="Sign for O" class="sign-image" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <!-- Empty column for layout balance -->
+          </div>
+          <div class="footer-column">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="../index.html">Home</a></li>
+              <li><a href="../gesture-to-text.html">Gesture to Text</a></li>
+              <li><a href="../gesture-to-speech.html">Gesture to Speech</a></li>
+              <li>
+                <a href="aspeech-to-sign-app.html">Speech to Gesture</a>
+              </li>
+              <li>
+                <a href="../voice translate/zvoice-translate.html">Translate</a>
+              </li>
+              <li><a href="../about.html">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contact Us</h3>
+            <ul>
+              <li>
+                <i class="fas fa-envelope"></i> Jupiterking technology.com
+              </li>
+              <li><i class="fas fa-phone"></i> +91 1234567890</li>
+              <li><i class="fas fa-map-marker-alt"></i> karnataka, India</li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 Indian Sign Language Detection Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../script.js"></script>
+    <script>
+      // DOM elements
+      const languageSelect = document.getElementById("language-select");
+      const toggleBtn = document.getElementById("toggle-btn");
+      const statusDiv = document.getElementById("status");
+      const outputText = document.getElementById("output-text");
+      const signDisplay = document.getElementById("sign-display");
+
+      // Variables
+      let recognition;
+      let isRecording = false;
+      let currentText = "";
+
+      // Initialize speech recognition
+      function initSpeechRecognition() {
+        // Check if browser supports SpeechRecognition
+        if (
+          !("webkitSpeechRecognition" in window) &&
+          !("SpeechRecognition" in window)
+        ) {
+          alert(
+            "Speech recognition is not supported in your browser. Please try Chrome, Edge, or Safari."
+          );
+          toggleBtn.disabled = true;
+          return;
+        }
+
+        // Create recognition object
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        // Set properties
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        // Set language based on selection
+        recognition.lang = languageSelect.value;
+
+        // Add event listeners
+        recognition.onstart = () => {
+          isRecording = true;
+          statusDiv.textContent = "Listening...";
+          statusDiv.classList.add("recording");
+          toggleBtn.textContent = "Stop";
+        };
+
+        recognition.onend = () => {
+          isRecording = false;
+          statusDiv.textContent = "Ready to listen";
+          statusDiv.classList.remove("recording");
+          toggleBtn.textContent = "Start";
+        };
+
+        recognition.onresult = (event) => {
+          let interimTranscript = "";
+          let finalTranscript = "";
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (finalTranscript) {
+            // Show interim results while waiting for translation
+            outputText.textContent = finalTranscript;
+
+            // Translate the text using Google Translate
+            simulateTranslation(finalTranscript, languageSelect.value).then(
+              (translatedText) => {
+                // Update the output text with translated text
+                currentText = translatedText;
+                outputText.textContent = currentText;
+
+                // Update sign display
+                updateSignDisplay(currentText);
+              }
+            );
+          }
+
+          // Show interim results
+          if (interimTranscript && !finalTranscript) {
+            outputText.textContent = interimTranscript;
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error", event.error);
+          statusDiv.textContent = `Error: ${event.error}`;
+          stopRecognition();
+        };
+      }
+
+      // Toggle speech recognition
+      function toggleRecognition() {
+        if (isRecording) {
+          stopRecognition();
+        } else {
+          startRecognition();
+        }
+      }
+
+      // Start speech recognition
+      function startRecognition() {
+        if (!recognition) {
+          initSpeechRecognition();
+        }
+
+        try {
+          recognition.lang = languageSelect.value;
+          recognition.start();
+          console.log(
+            "Speech recognition started with language:",
+            languageSelect.value
+          );
+        } catch (error) {
+          console.error("Error starting speech recognition:", error);
+          statusDiv.textContent = "Error starting recording. Please try again.";
+        }
+      }
+
+      // Stop speech recognition
+      function stopRecognition() {
+        if (recognition) {
+          try {
+            recognition.stop();
+            console.log("Speech recognition stopped");
+          } catch (error) {
+            console.error("Error stopping speech recognition:", error);
+          }
+        }
+      }
+
+      // Update sign display
+      function updateSignDisplay(text) {
+        signDisplay.innerHTML = "";
+
+        // Process only letters and spaces
+        const processed = text.toUpperCase().replace(/[^A-Z\s]/g, "");
+
+        for (const char of processed) {
+          if (char === " ") continue; // Skip spaces
+
+          const card = document.createElement("div");
+          card.className = "sign-card";
+
+          const letter = document.createElement("div");
+          letter.className = "letter";
+          letter.textContent = char;
+
+          const img = document.createElement("img");
+          img.className = "sign-image";
+          img.src = `${char.toLowerCase()}.jpg`; // Use local image files
+          img.alt = `Sign for ${char}`;
+
+          card.appendChild(letter);
+          card.appendChild(img);
+          signDisplay.appendChild(card);
+        }
+      }
+
+      // Simulate translation (in a real app, you would use a translation API)
+      function simulateTranslation(text, language) {
+        // For demo purposes, we'll return the same text for English
+        // and a simulated translation for other languages
+        if (language === "en-IN") {
+          return text;
+        }
+
+        // Use Google Translate API for translation
+        const sourceLang = language.split("-")[0]; // Extract language code (e.g., 'hi' from 'hi-IN')
+        const targetLang = "en"; // Always translate to English
+
+        // Show loading status
+        statusDiv.textContent = "Translating...";
+
+        // Using Google Translate API
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(
+          text
+        )}`;
+
+        // Return a promise that will be resolved with the translated text
+        return new Promise((resolve, reject) => {
+          fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+              // Extract translated text
+              const translatedText = data[0].map((item) => item[0]).join("");
+              statusDiv.textContent = "Translation complete";
+              resolve(translatedText);
+            })
+            .catch((error) => {
+              console.error("Translation error:", error);
+              statusDiv.textContent = "Translation failed. Using fallback.";
+
+              // Fallback to simulated translations if API fails
+              const translations = {
+                "hi-IN": {
+                  नमस्ते: "Hello",
+                  "शुभ प्रभात": "Good morning",
+                  धन्यवाद: "Thank you",
+                },
+                "ta-IN": {
+                  வணக்கம்: "Hello",
+                  "காலை வணக்கம்": "Good morning",
+                },
+              };
+
+              // Check if we have a simulated translation
+              if (translations[language] && translations[language][text]) {
+                resolve(translations[language][text]);
+              } else {
+                // If no translation is available, return the original text
+                resolve(
+                  text +
+                    " (translated from " +
+                    languageSelect.options[languageSelect.selectedIndex].text +
+                    ")"
+                );
+              }
+            });
+        });
+      }
+
+      // Event listeners
+      toggleBtn.addEventListener("click", toggleRecognition);
+
+      languageSelect.addEventListener("change", () => {
+        if (recognition) {
+          // Update language if recognition is already initialized
+          recognition.lang = languageSelect.value;
+
+          // Restart recognition if currently recording
+          if (isRecording) {
+            stopRecognition();
+            startRecognition();
+          }
+        }
+      });
+
+      // Initialize on page load
+      window.addEventListener("DOMContentLoaded", initSpeechRecognition);
+    </script>
+    <!-- Remove the old Google Translate div -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
+  </body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gesture to Speech - Indian Sign Language Detection</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      .instructions-container {
+        background-color: var(--light);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .instructions-container h2 {
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+
+      .instructions-container ol {
+        padding-left: 20px;
+      }
+
+      .instructions-container li {
+        margin-bottom: 10px;
+      }
+
+      .instructions-container code {
+        background-color: #f0f0f0;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+
+      .start-button {
+        display: inline-block;
+        background-color: var(--primary);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+      }
+
+      .start-button:hover {
+        background-color: var(--secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="header">
+      <div class="container">
+        <nav>
+          <div class="logo"><i class="fas fa-sign-language"></i> ISLD</div>
+          <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="gesture-to-text.html">Gesture to Text</a></li>
+            <li>
+              <a href="http://127.0.0.1:5001/" class="active"
+                >Gesture to Speech</a
+              >
+            </li>
+            <li>
+              <a href="speech to sign/aspeech-to-sign-app.html"
+                >Speech to Gesture</a
+              >
+            </li>
+            <li>
+              <a href="voice translate/zvoice-translate.html">Translate</a>
+            </li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <i class="fas fa-bars"></i>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Gesture to Speech Page -->
+    <section id="gesture-to-speech-page" class="conversion-page">
+      <div class="container">
+        <div class="conversion-container">
+          <div class="conversion-header">
+            <h1>Gesture to Speech Conversion</h1>
+            <p>Convert Indian Sign Language gestures into spoken words.</p>
+          </div>
+
+          <div class="instructions-container">
+            <h2>
+              <i class="fas fa-info-circle"></i> How to Start the Gesture to
+              Speech App
+            </h2>
+            <p>
+              To use the gesture to speech feature, you need to start the Flask
+              server first:
+            </p>
+            <ol>
+              <li>Open a command prompt or terminal</li>
+              <li>Navigate to the project directory</li>
+              <li>Run the following command:</li>
+              <code>cd hand-gesture-recognition-mediapipe-main</code
+              ><br />
+              <code>python app.py</code>
+              <li>
+                Once the server is running, click the button below to open the
+                gesture to speech page
+              </li>
+            </ol>
+            <a href="http://127.0.0.1:5001/" class="start-button">
+              <i class="fas fa-play"></i> Open Gesture to Speech App
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <!-- Empty column for layout balance -->
+          </div>
+          <div class="footer-column">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="gesture-to-text.html">Gesture to Text</a></li>
+              <li><a href="http://127.0.0.1:5001/">Gesture to Speech</a></li>
+              <li>
+                <a href="speech to sign/aspeech-to-sign-app.html"
+                  >Speech to Gesture</a
+                >
+              </li>
+              <li>
+                <a href="voice translate/zvoice-translate.html">Translate</a>
+              </li>
+              <li><a href="about.html">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contact Us</h3>
+            <ul>
+              <li>
+                <i class="fas fa-envelope"></i> Jupiterking technology.com
+              </li>
+              <li><i class="fas fa-phone"></i> +91 1234567890</li>
+              <li><i class="fas fa-map-marker-alt"></i> karnataka, India</li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 Indian Sign Language Detection Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+    <!-- Google Translate -->
+    <div
+      id="google_translate_element"
+      style="position: fixed; bottom: 30px; right: 20px; z-index: 1000"
+    ></div>
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+          },
+          "google_translate_element"
+        );
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
+  </body>
+</html>

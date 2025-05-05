@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hand Gesture Recognition - Indian Sign Language Detection</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Custom Styles for Hand Gesture Recognition App */
+      .video-container {
+        position: relative;
+        padding: 5px;
+        margin: 0 auto;
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      #video-feed {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      .fps-counter {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 10;
+      }
+
+      .result-box {
+        background-color: var(--light);
+        border-left: 4px solid var(--primary);
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+      .result-box h3 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-bottom: 5px;
+      }
+
+      .result-box p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+      }
+
+      .result-box.active {
+        border-left-color: var(--secondary);
+        background-color: rgba(var(--secondary-rgb), 0.1);
+      }
+
+      /* Animation for data updates */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+        }
+      }
+
+      .pulse {
+        animation: pulse 1s 1;
+      }
+
+      /* Media queries for better responsiveness */
+      @media (max-width: 768px) {
+        .video-container {
+          max-height: 50vh;
+        }
+
+        .result-box h3 {
+          font-size: 1.3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="header">
+      <div class="container">
+        <nav>
+          <div class="logo"><i class="fas fa-sign-language"></i> ISLD</div>
+          <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li>
+              <a href="/gesture-to-text" class="active">Gesture to Text</a>
+            </li>
+            <li>
+              <a href="/gesture-to-speech">Gesture to Speech</a>
+            </li>
+            <li>
+              <a href="/speech-to-sign">Speech to Gesture</a>
+            </li>
+            <li>
+              <a href="/voice-translate">Translate</a>
+            </li>
+            <li><a href="/about">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <i class="fas fa-bars"></i>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hand Gesture Recognition Page -->
+    <section id="gesture-recognition-page" class="conversion-page">
+      <div class="container">
+        <div class="conversion-container">
+          <div class="conversion-header">
+            <h1>Hand Gesture Recognition</h1>
+            <p>Real-time detection using computer vision</p>
+          </div>
+
+          <div class="conversion-box">
+            <i class="fas fa-video"></i>
+            <h3>Video Feed</h3>
+            <p>Position your hand in front of the camera to detect gestures.</p>
+            <div class="video-container">
+              <img
+                src="/video_feed"
+                class="img-fluid rounded"
+                id="video-feed"
+                alt="Hand tracking video"
+              />
+              <div class="fps-counter" id="fps-counter">
+                <i class="fas fa-tachometer-alt me-1"></i>
+                <span id="fps">0</span> FPS
+              </div>
+            </div>
+          </div>
+
+          <div class="conversion-result">
+            <h3>Detection Results</h3>
+            <div class="detection-result">
+              <div class="result-box">
+                <h3 id="hand-sign-value">Waiting...</h3>
+                <p>Current hand sign</p>
+              </div>
+
+              <div class="result-box">
+                <h3 id="finger-gesture-value">Waiting...</h3>
+                <p>Current finger gesture</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <!-- Empty column for layout balance -->
+          </div>
+          <div class="footer-column">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/gesture-to-text">Gesture to Text</a></li>
+              <li>
+                <a href="/gesture-to-speech">Gesture to Speech</a>
+              </li>
+              <li>
+                <a href="/speech-to-sign">Speech to Gesture</a>
+              </li>
+              <li>
+                <a href="/voice-translate">Translate</a>
+              </li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contact Us</h3>
+            <ul>
+              <li>
+                <i class="fas fa-envelope"></i> Jupiterking technology.com
+              </li>
+              <li><i class="fas fa-phone"></i> +91 1234567890</li>
+              <li><i class="fas fa-map-marker-alt"></i> karnataka, India</li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 Indian Sign Language Detection Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+      // Hand Gesture Recognition - Main JavaScript
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM elements
+        const handSignElement = document.getElementById("hand-sign-value");
+        const fingerGestureElement = document.getElementById(
+          "finger-gesture-value"
+        );
+        const fpsElement = document.getElementById("fps");
+        const resultBoxes = document.querySelectorAll(".result-box");
+
+        // Function to fetch detection data from the API
+        async function fetchDetectionData() {
+          try {
+            const response = await fetch("/get_data");
+
+            if (!response.ok) {
+              throw new Error("Failed to fetch data");
+            }
+
+            const data = await response.json();
+
+            // Update UI with detection results
+            updateHandSign(data.hand_sign);
+            updateFingerGesture(data.finger_gesture);
+            updateFps(data.fps);
+          } catch (error) {
+            console.error("Error fetching detection data:", error);
+          }
+        }
+
+        // Function to update hand sign display
+        function updateHandSign(handSign) {
+          if (handSign && handSign.trim() !== "") {
+            handSignElement.textContent = handSign;
+            handSignElement.parentElement.classList.add("active");
+            addPulseEffect(handSignElement.parentElement);
+          } else {
+            handSignElement.textContent = "No hand detected";
+            handSignElement.parentElement.classList.remove("active");
+          }
+        }
+
+        // Function to update finger gesture display
+        function updateFingerGesture(fingerGesture) {
+          if (fingerGesture && fingerGesture.trim() !== "") {
+            fingerGestureElement.textContent = fingerGesture;
+            fingerGestureElement.parentElement.classList.add("active");
+            addPulseEffect(fingerGestureElement.parentElement);
+          } else {
+            fingerGestureElement.textContent = "No gesture detected";
+            fingerGestureElement.parentElement.classList.remove("active");
+          }
+        }
+
+        // Function to update FPS counter
+        function updateFps(fps) {
+          fpsElement.textContent = Math.round(fps);
+        }
+
+        // Add pulsing animation effect for active detections
+        function addPulseEffect(element) {
+          element.classList.add("pulse");
+          setTimeout(() => {
+            element.classList.remove("pulse");
+          }, 300);
+        }
+
+        // Check for video feed errors and handle them
+        const videoFeed = document.getElementById("video-feed");
+        videoFeed.onerror = function () {
+          videoFeed.src = ""; // Clear the errored source
+          videoFeed.style.display = "none";
+
+          // Create error message
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "alert alert-danger m-3";
+          errorMsg.innerHTML =
+            '<i class="fas fa-exclamation-triangle me-2"></i> Error loading video feed. Please ensure your camera is connected and permissions are granted.';
+
+          videoFeed.parentElement.appendChild(errorMsg);
+        };
+
+        // Initial data fetch
+        fetchDetectionData();
+
+        // Set up periodic polling for new detection data (every 500ms)
+        setInterval(fetchDetectionData, 500);
+
+        // Add some visual feedback when data is refreshed
+        function addRefreshEffect() {
+          resultBoxes.forEach((box) => {
+            box.style.transition = "all 0.3s ease";
+            box.style.boxShadow = "0 0 15px rgba(var(--primary-rgb), 0.7)";
+            setTimeout(() => {
+              box.style.boxShadow = "none";
+            }, 300);
+          });
+        }
+
+        // Add a periodic visual effect to show that data is being updated
+        setInterval(addRefreshEffect, 2000);
+
+        // Handle window resize for responsive layout
+        function handleResize() {
+          const isMobile = window.innerWidth < 768;
+          const videoContainer = document.querySelector(".video-container");
+
+          if (isMobile) {
+            videoContainer.style.maxHeight = "40vh";
+          } else {
+            videoContainer.style.maxHeight = "70vh";
+          }
+        }
+
+        // Initial resize handling
+        handleResize();
+
+        // Add event listener for window resize
+        window.addEventListener("resize", handleResize);
+      });
+    </script>
+  </body>
+</html>

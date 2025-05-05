@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Indian Sign Language Detection</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Add these styles in the head section */
+      .language-selector {
+        position: relative;
+        display: inline-block;
+      }
+
+      .language-selector .goog-te-combo {
+        appearance: none;
+        background-color: transparent;
+        border: none;
+        color: white;
+        padding: 14px 20px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 16px;
+      }
+
+      .language-selector::after {
+        content: "▼";
+        font-size: 10px;
+        color: white;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .goog-te-banner-frame {
+        display: none;
+      }
+
+      .goog-logo-link {
+        display: none !important;
+      }
+
+      .goog-te-gadget {
+        color: transparent !important;
+      }
+
+      .goog-te-gadget .goog-te-combo {
+        color: white !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="header">
+      <div class="container">
+        <nav>
+          <div class="logo"><i class="fas fa-sign-language"></i> ISLD</div>
+          <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="gesture-to-text.html">Gesture to Text</a></li>
+            <li><a href="gesture-to-speech.html">Gesture to Speech</a></li>
+            <li>
+              <a href="speech to sign/aspeech-to-sign-app.html"
+                >Speech to Gesture</a
+              >
+            </li>
+            <li>
+              <a href="voice translate/zvoice-translate.html">Translate</a>
+            </li>
+            <li><a href="about.html">About</a></li>
+            <li class="language-selector">
+              <div id="google_translate_element"></div>
+            </li>
+          </ul>
+          <div class="hamburger">
+            <i class="fas fa-bars"></i>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Home Page Content -->
+    <section id="home-page">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1>Indian Sign Language Detection</h1>
+          <p>
+            Breaking barriers in communication with cutting-edge technology that
+            translates sign language to text and speech, making communication
+            more inclusive for everyone.
+          </p>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="features">
+        <div class="container">
+          <div class="section-title">
+            <h2>Our Features</h2>
+            <p>
+              Our technology provides seamless translation and communication
+              options for sign language users.
+            </p>
+          </div>
+          <div class="features-container">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-keyboard"></i>
+              </div>
+              <h3>Gesture to Text</h3>
+              <p>
+                Convert Indian Sign Language gestures into written text in
+                real-time with high accuracy.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-volume-up"></i>
+              </div>
+              <h3>Gesture to Speech</h3>
+              <p>
+                Translate sign language gestures directly into spoken words,
+                enabling verbal communication.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-hands"></i>
+              </div>
+              <h3>Speech to Gesture</h3>
+              <p>
+                Convert spoken words into animated sign language gestures for
+                better understanding.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Importance Section -->
+      <div class="importance">
+        <div class="container">
+          <div class="importance-content">
+            <div class="importance-text">
+              <h2>Why Sign Language Detection Matters</h2>
+              <p>
+                In India, over 63 million people with hearing impairments rely
+                on sign language as their primary means of communication.
+                Despite this, there remains a significant communication gap
+                between the hearing and hearing-impaired communities.
+              </p>
+              <p>
+                Our Indian Sign Language Detection technology seeks to bridge
+                this gap by using artificial intelligence and computer vision to
+                interpret sign language in real-time, providing text and speech
+                outputs that make communication more accessible.
+              </p>
+              <p>
+                By integrating this technology into everyday devices and public
+                services, we can create more inclusive environments in schools,
+                hospitals, government offices, and public spaces, ensuring that
+                everyone has equal access to information and services.
+              </p>
+            </div>
+            <div class="importance-image">
+              <img
+                src="image.png"
+                alt="Young girl practicing sign language with a smile"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <!-- Empty column for layout balance -->
+          </div>
+          <div class="footer-column">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li>
+                <a href="gesture-to-text.html">Gesture to Text</a>
+              </li>
+              <li><a href="gesture-to-speech.html">Gesture to Speech</a></li>
+              <li>
+                <a href="speech to sign/aspeech-to-sign-app.html"
+                  >Speech to Gesture</a
+                >
+              </li>
+              <li><a href="about.html">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contact Us</h3>
+            <ul>
+              <li>
+                <i class="fas fa-envelope"></i> Jupiterking technology.com
+              </li>
+              <li><i class="fas fa-phone"></i> +91 1234567890</li>
+              <li><i class="fas fa-map-marker-alt"></i> karnataka, India</li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 Indian Sign Language Detection Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+    <!-- Google Translate -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
+  </body>
+</html>

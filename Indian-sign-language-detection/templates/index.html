@@ -1,0 +1,302 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Indian Sign Language Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* CSS Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #f0f8ff;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .camera-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .video-feed {
+        width: 100%;
+        max-width: 640px;
+        border-radius: 8px;
+        border: 3px solid #6e8efb;
+      }
+
+      .prediction-box {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 640px;
+        background-color: #f4f6fa;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .current-sign {
+        text-align: center;
+        flex: 1;
+      }
+
+      .detected-history {
+        text-align: center;
+        flex: 2;
+      }
+
+      .sign-label,
+      .history-label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 5px;
+      }
+
+      #prediction-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #6e8efb;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #prediction-history {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .history-item {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        background-color: #a777e3;
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+      }
+
+      .instructions {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .instructions h2 {
+        margin-bottom: 15px;
+        color: #6e8efb;
+      }
+
+      .instructions ol {
+        margin-left: 20px;
+        margin-bottom: 15px;
+      }
+
+      .instructions li {
+        margin-bottom: 10px;
+      }
+
+      .note {
+        background-color: #f4f6fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #6e8efb;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #777;
+        font-size: 0.9rem;
+      }
+
+      @media (min-width: 768px) {
+        main {
+          flex-direction: row;
+        }
+
+        .camera-container {
+          flex: 3;
+        }
+
+        .instructions {
+          flex: 2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Indian Sign Language Detection</h1>
+      </header>
+
+      <main>
+        <div class="camera-container">
+          <img
+            src="{{ url_for('video_feed') }}"
+            alt="Video Feed"
+            class="video-feed"
+          />
+          <div class="prediction-box">
+            <div class="current-sign">
+              <div class="sign-label">Current Sign:</div>
+              <div id="prediction-display">-</div>
+            </div>
+            <div class="detected-history">
+              <div class="history-label">History:</div>
+              <div id="prediction-history"></div>
+            </div>
+          </div>
+        </div>
+        <div class="instructions">
+          <h2>How to Use</h2>
+          <ol>
+            <li>Position your hand in front of the camera</li>
+            <li>Make a sign from Indian Sign Language</li>
+            <li>Hold the sign steady for detection</li>
+            <li>The recognized sign will appear on screen</li>
+          </ol>
+          <div class="note">
+            <p>
+              This application can detect numbers 1-9 and uppercase letters A-Z
+              from Indian Sign Language.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>Indian Sign Language Detection System</p>
+      </footer>
+    </div>
+
+    <script>
+      // JavaScript for the web interface
+      document.addEventListener("DOMContentLoaded", function () {
+        const predictionDisplay = document.getElementById("prediction-display");
+        const predictionHistoryElement =
+          document.getElementById("prediction-history");
+
+        let lastPrediction = "";
+        let predictionHistoryArray = [];
+
+        // Function to fetch the current prediction
+        function fetchPrediction() {
+          fetch("/current_prediction")
+            .then((response) => response.json())
+            .then((data) => {
+              const prediction = data.prediction;
+
+              // Update display only if we have a new prediction
+              if (prediction && prediction !== lastPrediction) {
+                // Update the current prediction display
+                predictionDisplay.textContent = prediction;
+
+                // Add to history if not already the last item
+                if (
+                  predictionHistoryArray.length === 0 ||
+                  predictionHistoryArray[predictionHistoryArray.length - 1] !==
+                    prediction
+                ) {
+                  predictionHistoryArray.push(prediction);
+
+                  // Keep only the last 10 predictions
+                  if (predictionHistoryArray.length > 10) {
+                    predictionHistoryArray.shift();
+                  }
+
+                  // Update the history display
+                  updateHistoryDisplay();
+
+                  // Play speech if available
+                  speakPrediction(prediction);
+                }
+
+                lastPrediction = prediction;
+              }
+            })
+            .catch((error) =>
+              console.error("Error fetching prediction:", error)
+            );
+        }
+
+        // Function to update the history display
+        function updateHistoryDisplay() {
+          predictionHistoryElement.innerHTML = "";
+
+          predictionHistoryArray.forEach((item) => {
+            const historyItem = document.createElement("div");
+            historyItem.className = "history-item";
+            historyItem.textContent = item;
+            predictionHistoryElement.appendChild(historyItem);
+          });
+        }
+
+        // Function to speak the prediction using the Web Speech API
+        function speakPrediction(text) {
+          if ("speechSynthesis" in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            window.speechSynthesis.speak(utterance);
+          }
+        }
+
+        // Poll for prediction updates every 500ms
+        setInterval(fetchPrediction, 500);
+      });
+    </script>
+  </body>
+</html>

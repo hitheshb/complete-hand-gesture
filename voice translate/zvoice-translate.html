@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voice Translator - Indian Sign Language Detection</title>
+    <link rel="stylesheet" href="../style.css" />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Additional styles specific to the translator page */
+      .translator-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+      }
+
+      .language-selection {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 20px;
+      }
+
+      .language-box {
+        flex: 1;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: var(--dark);
+      }
+
+      select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+      }
+
+      .translation-area {
+        display: flex;
+        margin: 20px 0;
+        gap: 20px;
+      }
+
+      .text-box {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        min-height: 150px;
+        background-color: white;
+      }
+
+      .source-text {
+        background-color: #f9f9f9;
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .record-btn {
+        background-color: var(--secondary);
+        color: white;
+      }
+
+      .record-btn:hover:not(:disabled) {
+        background-color: #c0392b;
+      }
+
+      .status {
+        text-align: center;
+        margin: 10px 0;
+        font-style: italic;
+        color: #7f8c8d;
+      }
+
+      .swap-btn {
+        background-color: var(--accent);
+        color: white;
+        padding: 8px;
+        border-radius: 50%;
+        font-size: 18px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 35px 0 0 0;
+      }
+
+      .swap-btn:hover {
+        background-color: #e67e22;
+      }
+
+      .recording-pulse {
+        animation: pulse 1.5s infinite;
+      }
+
+      #audioPlayer {
+        display: none;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .language-selection {
+          flex-direction: column;
+        }
+
+        .translation-area {
+          flex-direction: column;
+        }
+
+        .swap-btn {
+          margin: 10px auto;
+        }
+      }
+
+      .language-selector {
+        position: relative;
+        display: inline-block;
+      }
+
+      .language-selector .goog-te-combo {
+        appearance: none;
+        background-color: transparent;
+        border: none;
+        color: white;
+        padding: 14px 20px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 16px;
+      }
+
+      .language-selector::after {
+        content: "▼";
+        font-size: 10px;
+        color: white;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .goog-te-banner-frame {
+        display: none;
+      }
+
+      .goog-logo-link {
+        display: none !important;
+      }
+
+      .goog-te-gadget {
+        color: transparent !important;
+      }
+
+      .goog-te-gadget .goog-te-combo {
+        color: white !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="header">
+      <div class="container">
+        <nav>
+          <div class="logo"><i class="fas fa-sign-language"></i> ISLD</div>
+          <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../gesture-to-text.html">Gesture to Text</a></li>
+            <li><a href="../gesture-to-speech.html">Gesture to Speech</a></li>
+            <li>
+              <a href="../speech to sign/aspeech-to-sign-app.html"
+                >Speech to Gesture</a
+              >
+            </li>
+            <li>
+              <a href="zvoice-translate.html" class="active">Translate</a>
+            </li>
+            <li><a href="../about.html">About</a></li>
+            <li class="language-selector">
+              <div id="google_translate_element"></div>
+            </li>
+          </ul>
+          <div class="hamburger">
+            <i class="fas fa-bars"></i>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Voice Translator Page -->
+    <section id="voice-translator-page" class="conversion-page">
+      <div class="container">
+        <div class="translator-container">
+          <div class="conversion-header">
+            <h1>Voice Translator</h1>
+            <p>
+              Translate between different languages using voice input and
+              output.
+            </p>
+          </div>
+
+          <div class="language-selection">
+            <div class="language-box">
+              <label for="sourceLanguage">Source Language:</label>
+              <select id="sourceLanguage">
+                <option value="en-IN">English</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="kn-IN">Kannada</option>
+                <option value="ta-IN">Tamil</option>
+                <option value="te-IN">Telugu</option>
+              </select>
+            </div>
+
+            <button id="swapLanguages" class="swap-btn" title="Swap Languages">
+              ⇄
+            </button>
+
+            <div class="language-box">
+              <label for="targetLanguage">Target Language:</label>
+              <select id="targetLanguage">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="kn">Kannada</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="translation-area">
+            <div
+              id="sourceText"
+              class="text-box source-text"
+              contenteditable="true"
+              placeholder="Speak or type text here..."
+            ></div>
+            <div id="translatedText" class="text-box"></div>
+          </div>
+
+          <div class="buttons">
+            <button id="recordButton" class="btn record-btn">
+              <i class="fas fa-microphone"></i> Record
+            </button>
+          </div>
+
+          <div id="status" class="status">Ready</div>
+
+          <!-- Hidden audio player for TTS playback -->
+          <audio id="audioPlayer" controls></audio>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <!-- Empty column for layout balance -->
+          </div>
+          <div class="footer-column">
+            <h3>Navigation</h3>
+            <ul>
+              <li><a href="../index.html">Home</a></li>
+              <li><a href="../gesture-to-text.html">Gesture to Text</a></li>
+              <li><a href="../gesture-to-speech.html">Gesture to Speech</a></li>
+              <li>
+                <a href="../speech to sign/aspeech-to-sign-app.html"
+                  >Speech to Gesture</a
+                >
+              </li>
+              <li>
+                <a href="zvoice-translate.html">Translate</a>
+              </li>
+              <li><a href="../about.html">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contact Us</h3>
+            <ul>
+              <li>
+                <i class="fas fa-envelope"></i> Jupiterking technology.com
+              </li>
+              <li><i class="fas fa-phone"></i> +91 1234567890</li>
+              <li><i class="fas fa-map-marker-alt"></i> karnataka, India</li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 Indian Sign Language Detection Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../script.js"></script>
+    <script>
+      // Language mapping for translation and speech recognition
+      const languageMap = {
+        "en-IN": { name: "English", code: "en" },
+        "hi-IN": { name: "Hindi", code: "hi" },
+        "kn-IN": { name: "Kannada", code: "kn" },
+        "ta-IN": { name: "Tamil", code: "ta" },
+        "te-IN": { name: "Telugu", code: "te" },
+      };
+
+      // Speech recognition setup
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition;
+
+      if (SpeechRecognition) {
+        try {
+          recognition = new SpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          console.log("Speech recognition initialized successfully");
+        } catch (error) {
+          console.error("Error initializing speech recognition:", error);
+          alert(
+            "Error initializing speech recognition. Please try Chrome or Edge."
+          );
+          recordButton.disabled = true;
+          recordButton.textContent = "Unsupported";
+        }
+      } else {
+        console.warn("Browser doesn't support SpeechRecognition API");
+        alert(
+          "Sorry, your browser doesn't support speech recognition. Try Chrome or Edge."
+        );
+        recordButton.disabled = true;
+        recordButton.textContent = "Unsupported";
+      }
+
+      // Get DOM elements
+      const sourceLanguageSelect = document.getElementById("sourceLanguage");
+      const targetLanguageSelect = document.getElementById("targetLanguage");
+      const sourceTextDiv = document.getElementById("sourceText");
+      const translatedTextDiv = document.getElementById("translatedText");
+      const recordButton = document.getElementById("recordButton");
+      const swapButton = document.getElementById("swapLanguages");
+      const statusDiv = document.getElementById("status");
+      const audioPlayer = document.getElementById("audioPlayer");
+
+      // Variables to track state
+      let isRecording = false;
+
+      // Event handlers
+      recordButton.addEventListener("click", toggleRecording);
+      swapButton.addEventListener("click", swapLanguages);
+
+      // Set up speech recognition event handlers
+      if (recognition) {
+        recognition.onstart = () => {
+          statusDiv.textContent = "Listening...";
+          recordButton.classList.add("recording-pulse");
+          isRecording = true;
+          recordButton.textContent = "Stop";
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          sourceTextDiv.textContent = transcript;
+          statusDiv.textContent = "Got it! Translating...";
+          translateText();
+        };
+
+        recognition.onend = () => {
+          recordButton.classList.remove("recording-pulse");
+          isRecording = false;
+          recordButton.textContent = "Record";
+        };
+
+        recognition.onerror = (event) => {
+          statusDiv.textContent = `Error: ${event.error}`;
+          recordButton.classList.remove("recording-pulse");
+          isRecording = false;
+          recordButton.textContent = "Record";
+        };
+      }
+
+      // Functions
+      function toggleRecording() {
+        if (!SpeechRecognition) {
+          statusDiv.textContent =
+            "Speech recognition not supported by your browser";
+          return;
+        }
+
+        if (isRecording) {
+          recognition.stop();
+        } else {
+          recognition.lang = sourceLanguageSelect.value;
+          sourceTextDiv.textContent = "";
+          translatedTextDiv.textContent = "";
+          console.log(
+            "Starting speech recognition with language:",
+            sourceLanguageSelect.value
+          );
+          try {
+            recognition.start();
+          } catch (error) {
+            console.error("Speech recognition error:", error);
+            statusDiv.textContent =
+              "Error starting recording. Please try again or use Chrome/Edge.";
+            recordButton.classList.remove("recording-pulse");
+            isRecording = false;
+            recordButton.textContent = "Record";
+          }
+        }
+      }
+
+      function translateText() {
+        const sourceText = sourceTextDiv.textContent.trim();
+
+        if (!sourceText) {
+          statusDiv.textContent = "No text to translate";
+          return;
+        }
+
+        const sourceLang = sourceLanguageSelect.value.split("-")[0];
+        const targetLang = targetLanguageSelect.value;
+
+        // Using Google Translate API
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(
+          sourceText
+        )}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            // Extract translated text
+            const translatedText = data[0].map((item) => item[0]).join("");
+            translatedTextDiv.textContent = translatedText;
+            statusDiv.textContent = "Translation complete. Speaking...";
+            speakTranslation();
+          })
+          .catch((error) => {
+            console.error("Translation error:", error);
+            statusDiv.textContent = "Translation failed. Please try again.";
+          });
+      }
+
+      function speakTranslation() {
+        const translatedText = translatedTextDiv.textContent.trim();
+
+        if (!translatedText) {
+          return;
+        }
+
+        const targetLang = targetLanguageSelect.value;
+
+        // Try native speech synthesis first for English and Hindi
+        if (targetLang === "en" || targetLang === "hi") {
+          try {
+            const speech = new SpeechSynthesisUtterance(translatedText);
+            speech.lang = targetLang;
+
+            statusDiv.textContent = "Speaking...";
+
+            speech.onend = () => {
+              statusDiv.textContent = "Done speaking";
+            };
+
+            speech.onerror = () => {
+              // If native synthesis fails, fall back to Google TTS
+              useGoogleTTS(translatedText, targetLang);
+            };
+
+            window.speechSynthesis.speak(speech);
+            return;
+          } catch (e) {
+            console.error("Native speech synthesis failed:", e);
+            // Fall through to Google TTS
+          }
+        }
+
+        // For Kannada, Tamil, Telugu or if native speech synthesis failed
+        useGoogleTTS(translatedText, targetLang);
+      }
+
+      function useGoogleTTS(text, lang) {
+        statusDiv.textContent = "Preparing audio...";
+
+        // Use Google Translate TTS API
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(
+          text
+        )}`;
+
+        // Set the audio source and play
+        audioPlayer.src = ttsUrl;
+
+        audioPlayer.onloadeddata = () => {
+          statusDiv.textContent = "Playing audio...";
+          audioPlayer.play();
+        };
+
+        audioPlayer.onended = () => {
+          statusDiv.textContent = "Done speaking";
+        };
+
+        audioPlayer.onerror = () => {
+          statusDiv.textContent =
+            "Error playing audio. Service might be unavailable.";
+
+          // Fallback to alternative TTS service
+          const fallbackTTS = `https://www.translate.com/tts?lang=${lang}&text=${encodeURIComponent(
+            text
+          )}`;
+          audioPlayer.src = fallbackTTS;
+          audioPlayer.play();
+        };
+      }
+
+      function swapLanguages() {
+        const sourceValue = sourceLanguageSelect.value;
+        const targetValue = targetLanguageSelect.value;
+
+        // Find matching language codes for swapping
+        let sourceIndex = -1;
+        let targetIndex = -1;
+
+        // Find source in target options
+        for (let i = 0; i < targetLanguageSelect.options.length; i++) {
+          if (
+            targetLanguageSelect.options[i].value === sourceValue.split("-")[0]
+          ) {
+            targetIndex = i;
+            break;
+          }
+        }
+
+        // Find target in source options
+        for (let i = 0; i < sourceLanguageSelect.options.length; i++) {
+          if (sourceLanguageSelect.options[i].value.startsWith(targetValue)) {
+            sourceIndex = i;
+            break;
+          }
+        }
+
+        if (sourceIndex >= 0 && targetIndex >= 0) {
+          sourceLanguageSelect.selectedIndex = sourceIndex;
+          targetLanguageSelect.selectedIndex = targetIndex;
+
+          // Swap text content as well
+          const sourceContent = sourceTextDiv.textContent;
+          sourceTextDiv.textContent = translatedTextDiv.textContent;
+          translatedTextDiv.textContent = sourceContent;
+        }
+      }
+
+      // Initialize the first option as default
+      targetLanguageSelect.selectedIndex = 1; // Default to Hindi as target (different from source)
+    </script>
+    <!-- Remove the old Google Translate div -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
+  </body>
+</html>
